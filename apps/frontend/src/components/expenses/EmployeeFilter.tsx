@@ -5,35 +5,30 @@ import { fetchJson } from '@/lib/http'
 import type { Employee } from '@/types/api'
 
 type Props = {
-  employees: Employee[]
   value: string | null
   onChange: (id: string | null) => void
 }
 
-export function EmployeeFilter({ employees, value, onChange }: Props) {
+export function EmployeeFilter({ value, onChange }: Props) {
   const [query, setQuery] = useState('')
-  const [remote, setRemote] = useState<Employee[] | null>(null)
+  const [employees, setEmployees] = useState<Employee[]>([])
 
   useEffect(() => {
     const q = query.trim()
-    if (!q) {
-      setRemote(null)
-      return
-    }
     fetchJson<Employee[]>(`/api/employees/search?q=${encodeURIComponent(q)}`)
       .then((res) => {
-        setRemote(res)
+        setEmployees(res)
       })
       .catch(() => {
-        setRemote([])
+        setEmployees([])
       })
   }, [query])
 
   const filtered = useMemo(() => {
     const q = query.trim()
     if (!q) return employees
-    return remote ?? []
-  }, [employees, query, remote])
+    return employees
+  }, [employees, query])
 
   const selected = employees.find((e) => e.id === value)
 

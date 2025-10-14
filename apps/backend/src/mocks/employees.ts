@@ -14,6 +14,11 @@ export const employees: Employee[] = [
   { id: '6', name: 'Katherine Johnson', title: 'Data Scientist', department: 'Data' },
   { id: '7', name: 'Barbara Liskov', title: 'Architect', department: 'Architecture' },
   { id: '8', name: 'Donald Knuth', title: 'Scientist', department: 'Research' },
+  { id: '9', name: 'Edsger Dijkstra', title: 'Computer Scientist', department: 'Algorithms' },
+  { id: '10', name: 'Niklaus Wirth', title: 'Computer Scientist', department: 'Algorithms' },
+  { id: '11', name: 'Charles Babbage', title: 'Computer Scientist', department: 'Algorithms' },
+  { id: '12', name: 'John von Neumann', title: 'Computer Scientist', department: 'Algorithms' },
+  { id: '13', name: 'Alan Kay', title: 'Computer Scientist', department: 'Algorithms' },
 ]
 
 

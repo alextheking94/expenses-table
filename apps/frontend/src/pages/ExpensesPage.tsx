@@ -3,22 +3,18 @@ import { useMemo, useState } from 'react'
 
 import { EmployeeFilter } from '@/components/expenses/EmployeeFilter'
 import { ExpensesTable } from '@/components/expenses/ExpensesTable'
-import { useEmployees } from '@/hooks/useEmployees'
-import { useExpenseRows } from '@/hooks/useExpenseRows'
 import { useExpenses } from '@/hooks/useExpenses'
 
 export default function ExpensesPage() {
-  const { data: employees, loading: loadingEmployees, error: errEmp } = useEmployees()
   const { data: expenses, loading: loadingExpenses, error: errExp } = useExpenses()
-  const rows = useExpenseRows(employees, expenses)
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null)
   const filteredRows = useMemo(() => {
-    if (!rows) return null
-    if (!selectedEmployeeId) return rows
-    return rows.filter((r) => r.employeeId === selectedEmployeeId)
-  }, [rows, selectedEmployeeId])
+    if (!expenses) return null
+    if (!selectedEmployeeId) return expenses
+    return expenses.filter((r) => r.employeeId === selectedEmployeeId)
+  }, [expenses, selectedEmployeeId])
 
-  if (loadingEmployees || loadingExpenses) {
+  if (loadingExpenses) {
     return (
       <Center p={10}>
         <Spinner />
@@ -26,7 +22,7 @@ export default function ExpensesPage() {
     )
   }
 
-  if (errEmp || errExp) {
+  if (errExp) {
     return (
       <Center p={10}>
         <Box color="red.500">Failed to load data.</Box>
@@ -34,7 +30,7 @@ export default function ExpensesPage() {
     )
   }
 
-  if (!rows) {
+  if (!expenses) {
     return (
       <Center p={10}>
         <Box color="gray.500">No data available.</Box>
@@ -46,15 +42,12 @@ export default function ExpensesPage() {
     <Box px={8} py={6} width="100%">
       <Heading size="lg" mb={4}>Expenses</Heading>
       <HStack mb={4}>
-        {employees && (
-          <EmployeeFilter
-            employees={employees}
-            value={selectedEmployeeId}
-            onChange={setSelectedEmployeeId}
-          />
-        )}
+        <EmployeeFilter
+          value={selectedEmployeeId}
+          onChange={setSelectedEmployeeId}
+        />
       </HStack>
-      <ExpensesTable rows={filteredRows ?? rows} />
+      <ExpensesTable rows={filteredRows ?? expenses} />
     </Box>
   )
 }
