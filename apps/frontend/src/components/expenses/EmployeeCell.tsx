@@ -1,9 +1,7 @@
 import { Avatar, HStack, Text } from '@chakra-ui/react'
 
-import type { Employee } from '@/types/api'
-
-export function EmployeeCell({ employee }: { employee?: Employee }) {
-  if (!employee) {
+export function EmployeeCell({ name }: { name?: string }) {
+  if (!name) {
     return (
       <HStack spacing={3}>
         <Avatar size="sm" name="Unknown" />
@@ -13,8 +11,8 @@ export function EmployeeCell({ employee }: { employee?: Employee }) {
   }
   return (
     <HStack spacing={3}>
-      <Avatar size="sm" name={employee.name} />
-      <Text>{employee.name}</Text>
+      <Avatar size="sm" name={name} />
+      <Text>{name}</Text>
     </HStack>
   )
 }

@@ -1,20 +1,18 @@
-import { Box, Center, Heading, HStack, Spinner } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import { Box, Button, Center, Heading, HStack, Spinner, Text } from '@chakra-ui/react'
+import { useState } from 'react'
 
 import { EmployeeFilter } from '@/components/expenses/EmployeeFilter'
 import { ExpensesTable } from '@/components/expenses/ExpensesTable'
 import { useExpenses } from '@/hooks/useExpenses'
 
 export default function ExpensesPage() {
-  const { data: expenses, loading: loadingExpenses, error: errExp } = useExpenses()
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null)
-  const filteredRows = useMemo(() => {
-    if (!expenses) return null
-    if (!selectedEmployeeId) return expenses
-    return expenses.filter((r) => r.employeeId === selectedEmployeeId)
-  }, [expenses, selectedEmployeeId])
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+  const { items, total, loading, error } = useExpenses({ employeeId: selectedEmployeeId, page, pageSize })
+  const maxPage = Math.max(1, Math.ceil(total / pageSize))
 
-  if (loadingExpenses) {
+  if (loading) {
     return (
       <Center p={10}>
         <Spinner />
@@ -22,7 +20,7 @@ export default function ExpensesPage() {
     )
   }
 
-  if (errExp) {
+  if (error) {
     return (
       <Center p={10}>
         <Box color="red.500">Failed to load data.</Box>
@@ -30,7 +28,7 @@ export default function ExpensesPage() {
     )
   }
 
-  if (!expenses) {
+  if (!items) {
     return (
       <Center p={10}>
         <Box color="gray.500">No data available.</Box>
@@ -47,7 +45,16 @@ export default function ExpensesPage() {
           onChange={setSelectedEmployeeId}
         />
       </HStack>
-      <ExpensesTable rows={filteredRows ?? expenses} />
+      <ExpensesTable rows={items} />
+      <HStack mt={4} justify="space-between">
+        <Button size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} isDisabled={page === 1}>
+          Prev
+        </Button>
+        <Text fontSize="sm">Page {page} of {maxPage}</Text>
+        <Button size="sm" onClick={() => setPage((p) => Math.min(maxPage, p + 1))} isDisabled={page >= maxPage}>
+          Next
+        </Button>
+      </HStack>
     </Box>
   )
 }
