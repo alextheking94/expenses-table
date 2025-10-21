@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { employees } from './mocks/employees'
 import { EXPENSE_STATUS_SET, expenses } from './mocks/expenses'
+import { rateLimit } from 'express-rate-limit'
 
 const employeeIdToNameMap = new Map(employees.map((e) => [e.id, e.name]))
 
@@ -15,11 +16,16 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }))
 // Employees
 app.get('/api/employees', async (_req, res) => await new Promise(resolve => setTimeout(() => resolve(res.json(employees)), Math.random() * 500)));
 
+const employeeSearchLimiter = rateLimit({
+  windowMs: 500,
+  limit: 2,
+})
+
 // Employees search
-app.get('/api/employees/search', async (req, res) => {
+app.get('/api/employees/search', employeeSearchLimiter, async (req, res) => {
   const q = String(req.query.q ?? '').toLowerCase()
   const result = (!q ? employees : employees.filter((e) => e.name.toLowerCase().includes(q))).slice(0, 5).sort((a, b) => a.name.localeCompare(b.name))
-  await new Promise(resolve => setTimeout(() => resolve(null), 1000 / q.length))
+  await new Promise(resolve => setTimeout(() => resolve(null), Math.random() * 500))
   res.json(result)
 });
 
