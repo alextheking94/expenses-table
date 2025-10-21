@@ -59,14 +59,13 @@ export const Filter = ({ title, filterOptions, queryConfig, isMultiSelect }: Fil
             <List maxH="240px" overflowY="auto" spacing={1}>
               {filterOptions.map(option => (
                 <ListItem key={option.id}>
-                  {isMultiSelect ? ( /// potentially refactor to reuse the props
+                  {isMultiSelect ? (
                     <Checkbox
                       size="sm"
-                      variant={option.selected ? 'solid' : 'ghost'}
-                      colorScheme={option.selected ? 'teal' : undefined}
                       w="100%"
                       justifyContent="flex-start"
-                      onClick={() => option.onClick()}
+                      onChange={() => option.onClick()}
+                      isChecked={option.selected}
                     >
                       <Text>{option.title}</Text>
                     </Checkbox>

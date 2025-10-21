@@ -1,46 +1,27 @@
-import { Box, Button, Center, Heading, HStack, Spinner, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 
 import { EmployeeFilter } from '@/components/expenses/EmployeeFilter';
 import { ExpensesTable } from '@/components/expenses/ExpensesTable';
 import { useExpenses } from '@/hooks/useExpenses';
+import type { Employee } from '@/types/api';
 
 const PAGE_SIZE = 10;
 
 export default function ExpensesPage() {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [page, setPage] = useState(1);
   const {
     items,
     meta: { total },
     loading,
     error,
-  } = useExpenses({ employeeId: selectedEmployeeId, page, pageSize: PAGE_SIZE });
+  } = useExpenses({
+    employeeId: selectedEmployee?.id,
+    page,
+    pageSize: PAGE_SIZE,
+  });
   const maxPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  if (loading) {
-    return (
-      <Center p={10}>
-        <Spinner />
-      </Center>
-    );
-  }
-
-  if (error) {
-    return (
-      <Center p={10}>
-        <Box color="red.500">Failed to load data.</Box>
-      </Center>
-    );
-  }
-
-  if (!items) {
-    return (
-      <Center p={10}>
-        <Box color="gray.500">No data available.</Box>
-      </Center>
-    );
-  }
 
   return (
     <Box px={8} py={6} width="100%">
@@ -48,9 +29,9 @@ export default function ExpensesPage() {
         Expenses
       </Heading>
       <HStack mb={4}>
-        <EmployeeFilter selectedEmployeeId={selectedEmployeeId} onChange={setSelectedEmployeeId} />
+        <EmployeeFilter selectedEmployee={selectedEmployee} onChange={setSelectedEmployee} />
       </HStack>
-      <ExpensesTable rows={items} />
+      <ExpensesTable rows={items ?? []} loading={loading} error={error} />
       <HStack mt={4} justify="space-between">
         <Button size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} isDisabled={page === 1}>
           Prev
