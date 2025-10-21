@@ -1,10 +1,10 @@
-import { Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react'
+import { Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
 
-import { EmployeeCell } from './EmployeeCell'
-import { StatusBadge } from './StatusBadge'
+import { EmployeeCell } from './EmployeeCell';
+import { StatusBadge } from './StatusBadge';
 
-import { formatDate, formatMoneyUSD } from '@/lib/format'
-  import type { Expense } from '@/types/api'
+import { formatDate, formatMoneyUSD } from '@/lib/format';
+import type { Expense } from '@/types/api';
 
 export function ExpensesTable({ rows }: { rows: Expense[] }) {
   return (
@@ -18,15 +18,19 @@ export function ExpensesTable({ rows }: { rows: Expense[] }) {
         </Tr>
       </Thead>
       <Tbody>
-        {rows.map((r) => (
+        {rows.map(r => (
           <Tr key={r.id}>
-            <Td><EmployeeCell name={r.employeeName} /></Td>
+            <Td>
+              <EmployeeCell name={r.employeeName} />
+            </Td>
             <Td>{formatDate(r.reimbursementDate)}</Td>
             <Td isNumeric>{formatMoneyUSD(r.amount)}</Td>
-            <Td><StatusBadge status={r.status} /></Td>
+            <Td>
+              <StatusBadge status={r.status} />
+            </Td>
           </Tr>
         ))}
       </Tbody>
     </Table>
-  )
+  );
 }

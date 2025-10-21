@@ -1,80 +1,43 @@
-import { Box, Button, Input, List, ListItem, Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger, Text } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react';
 
-import { fetchJson } from '@/lib/http'
-import type { Employee } from '@/types/api'
+import { Filter } from '../ds/Filter';
+
+import { useEmployeesSearch } from '@/hooks/useEmployeesSearch';
 
 type Props = {
-  value: string | null
-  onChange: (id: string | null) => void
-}
+  selectedEmployeeId: string | null;
+  onChange: (id: string | null) => void;
+};
 
-export function EmployeeFilter({ value, onChange }: Props) {
-  const [query, setQuery] = useState('')
-  const [employees, setEmployees] = useState<Employee[]>([])
+export function EmployeeFilter({ selectedEmployeeId, onChange }: Props) {
+  const [query, setQuery] = useState('');
+  const { employees } = useEmployeesSearch({ searchTerm: query });
 
-  useEffect(() => {
-    const q = query.trim()
-    fetchJson<Employee[]>(`/api/employees/search?q=${encodeURIComponent(q)}`)
-      .then((res) => {
-        setEmployees(res)
-      })
-      .catch(() => {
-        setEmployees([])
-      })
-  }, [query])
-
-  const filtered = useMemo(() => {
-    const q = query.trim()
-    if (!q) return employees
-    return employees
-  }, [employees, query])
-
-  const selected = employees.find((e) => e.id === value)
+  const selected = employees?.find(employee => employee.id === selectedEmployeeId);
 
   return (
-    <Popover placement="bottom-start" matchWidth>
-      <PopoverTrigger>
-        <Button variant="outline" size="sm">
-          {selected ? selected.name : 'All employees'}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent w="sm">
-        <PopoverArrow />
-        <PopoverBody>
-          <Box>
-            <Input
-              size="sm"
-              placeholder="Search employees..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              mb={2}
-            />
-            <List maxH="240px" overflowY="auto" spacing={1}>
-              <ListItem>
-                <Button size="sm" variant="ghost" w="100%" justifyContent="flex-start" onClick={() => onChange(null)}>
-                  All employees
-                </Button>
-              </ListItem>
-              {filtered.map((e) => (
-                <ListItem key={e.id}>
-                  <Button
-                    size="sm"
-                    variant={value === e.id ? 'solid' : 'ghost'}
-                    colorScheme={value === e.id ? 'teal' : undefined}
-                    w="100%"
-                    justifyContent="flex-start"
-                    onClick={() => onChange(e.id)}
-                  >
-                    <Text>{e.name}</Text>
-                  </Button>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
-  )
+    <Filter
+      title={selected ? selected.name : 'All employees'}
+      filterOptions={[
+        {
+          id: 'all-employees-option',
+          selected: selectedEmployeeId === null,
+          onClick: () => onChange(null),
+          title: 'All employees',
+        },
+      ].concat(
+        employees?.map(employee => ({
+          id: employee.id,
+          selected: selected?.id === employee.id,
+          onClick: () => onChange(employee.id),
+          title: employee.name,
+        })) ?? []
+      )}
+      queryConfig={{
+        active: true,
+        onQueryChange: value => setQuery(value),
+        placeholder: 'Search employees...',
+      }}
+    />
+  );
 }
-

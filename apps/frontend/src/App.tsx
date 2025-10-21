@@ -1,5 +1,5 @@
-import ExpensesPage from '@/pages/ExpensesPage'
+import ExpensesPage from '@/pages/ExpensesPage';
 
 export default function App() {
-  return <ExpensesPage />
+  return <ExpensesPage />;
 }

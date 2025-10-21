@@ -1,50 +1,61 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react';
 
-import { fetchJson } from '@/lib/http'
-import type { Expense, Paginated } from '@/types/api'
+import { useFetchJson } from './useFetchJson';
 
-export type UseExpensesParams = {
-  employeeId?: string | null
-  page?: number
-  pageSize?: number
+import type { Expense, Paginated } from '@/types/api';
+
+export interface UseExpensesParams {
+  employeeId?: string | null;
+  page?: number;
+  pageSize?: number;
 }
 
-export function useExpenses(params: UseExpensesParams = {}) {
-  const { employeeId = undefined, page = 1, pageSize = 10 } = params
-  const query = useMemo(() => {
-    const q = new URLSearchParams()
-    if (employeeId) q.set('employeeId', employeeId)
-    if (page) q.set('page', String(page))
-    if (pageSize) q.set('pageSize', String(pageSize))
-    return q.toString()
-  }, [employeeId, page, pageSize])
+const EXPENSES_BASE_PATH = '/api/expenses';
 
-  const [items, setItems] = useState<Expense[] | null>(null)
-  const [total, setTotal] = useState<number>(0)
-  const [meta, setMeta] = useState<{ page: number; pageSize: number }>({ page, pageSize })
-  const [error, setError] = useState<Error | null>(null)
-  const [loading, setLoading] = useState(true)
+export const useExpenses = ({ employeeId, page = 1, pageSize = 10 }: UseExpensesParams) => {
+  const [items, setItems] = useState<Expense[] | null>(null);
+  const [meta, setMeta] = useState<{ page: number; pageSize: number; total: number }>({
+    page,
+    pageSize,
+    total: 0,
+  });
+
+  const query = useMemo(() => {
+    const searchParams = new URLSearchParams();
+    if (employeeId) {
+      searchParams.set('employeeId', employeeId);
+    }
+    if (page) {
+      searchParams.set('page', String(page));
+    }
+    if (pageSize) {
+      searchParams.set('pageSize', String(pageSize));
+    }
+
+    return searchParams.toString();
+  }, [employeeId, page, pageSize]);
+
+  const {
+    data: expensesResponse,
+    loading,
+    error,
+  } = useFetchJson<Paginated<Expense>>(`${EXPENSES_BASE_PATH}?${query}`);
 
   useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    fetchJson<Paginated<Expense>>(`/api/expenses?${query}`)
-      .then((res) => {
-        if (cancelled) return
-        setItems(res.items)
-        setTotal(res.total)
-        setMeta({ page: res.page, pageSize: res.pageSize })
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as Error)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
+    if (expensesResponse) {
+      setItems(expensesResponse.items);
+      setMeta({
+        page: expensesResponse.page,
+        pageSize: expensesResponse.pageSize,
+        total: expensesResponse.total,
+      });
     }
-  }, [query])
+  }, [expensesResponse]);
 
-  return { items, total, page: meta.page, pageSize: meta.pageSize, error, loading }
-}
+  return {
+    items,
+    meta,
+    loading,
+    error,
+  };
+};
