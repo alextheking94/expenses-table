@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { Filter } from '../ds/Filter';
 
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useEmployeesSearch } from '@/hooks/useEmployeesSearch';
 import type { Employee } from '@/types/api';
 
@@ -12,7 +13,10 @@ type Props = {
 
 export function EmployeeFilter({ selectedEmployee, onChange }: Props) {
   const [query, setQuery] = useState('');
-  const { employees } = useEmployeesSearch({ searchTerm: query });
+
+  const debouncedQuery = useDebouncedValue(query, 300);
+
+  const { employees } = useEmployeesSearch({ searchTerm: debouncedQuery });
 
   return (
     <Filter

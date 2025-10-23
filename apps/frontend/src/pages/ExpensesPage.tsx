@@ -11,6 +11,9 @@ const PAGE_SIZE = 10;
 export default function ExpensesPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [page, setPage] = useState(1);
+
+  const [statusFilters, setStatusFilters] = useState(['PROCESSING']);
+
   const {
     items,
     meta: { total },

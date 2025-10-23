@@ -8,11 +8,17 @@ export interface UseExpensesParams {
   employeeId?: string | null;
   page?: number;
   pageSize?: number;
+  statusFilters: string[];
 }
 
 const EXPENSES_BASE_PATH = '/api/expenses';
 
-export const useExpenses = ({ employeeId, page = 1, pageSize = 10 }: UseExpensesParams) => {
+export const useExpenses = ({
+  employeeId,
+  page = 1,
+  pageSize = 10,
+  statusFilter,
+}: UseExpensesParams) => {
   const [items, setItems] = useState<Expense[] | null>(null);
   const [meta, setMeta] = useState<{ page: number; pageSize: number; total: number }>({
     page,
