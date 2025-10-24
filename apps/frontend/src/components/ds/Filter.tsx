@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
-interface FilterProps {
+export interface FilterProps {
   title: string;
   filterOptions: Array<{
     id: string;
